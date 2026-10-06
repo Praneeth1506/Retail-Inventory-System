@@ -87,6 +87,14 @@ def ensure_sales_history(df_products: pd.DataFrame, today: date | None = None) -
     """Seed SalesHistory with synthetic history ending yesterday if it is empty. Returns rows added."""
     if not get_sales_history().empty:
         return 0
+    rows = synthetic_history_rows(df_products, today)
+    insert_sales_rows(rows)
+    return len(rows)
+
+
+def synthetic_history_rows(df_products: pd.DataFrame, today: date | None = None) -> pd.DataFrame:
+    """The seeding history (HISTORY_DAYS ending yesterday) in the SalesHistory table's format,
+    without writing it anywhere."""
     today = today or date.today()
     ids = engine_id_map(df_products["product_id"])
     text_ids = {v: k for k, v in ids.items()}
@@ -101,8 +109,7 @@ def ensure_sales_history(df_products: pd.DataFrame, today: date | None = None) -
         "is_weekend": history["is_weekend"].astype(int),
         "has_promo": history["has_promo"].astype(int),
     })
-    insert_sales_rows(rows)
-    return len(rows)
+    return rows
 
 
 def seeding_products(df_products: pd.DataFrame, ids: dict[str, int]) -> pd.DataFrame:
@@ -147,11 +154,14 @@ def recommend(
     history: pd.DataFrame,
     promo_dates: list[date],
     spoilage_cost: float = 0.0,
+    order_cost: float = APP_ORDER_COST,
+    risk_tolerance: float | None = None,
 ) -> dict:
     """One recommend_order call for one app product. current_stock = on hand + on order."""
     engine_product = product.copy()
     engine_product["product_id"] = ids[product["product_id"]]
     return recommend_order(
         engine_product, int(current_stock), current_date, history,
-        promo_dates=promo_dates, order_cost=APP_ORDER_COST, spoilage_cost=float(spoilage_cost),
+        promo_dates=promo_dates, order_cost=float(order_cost), spoilage_cost=float(spoilage_cost),
+        risk_tolerance=risk_tolerance,
     )

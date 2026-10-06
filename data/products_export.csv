@@ -1,0 +1,11 @@
+product_id,name,category,unit_cost,selling_price,holding_cost_per_day,stockout_penalty,shelf_life_days,lead_time_days
+P001,Whole Milk 1L,Milk,1.2,2.5,0.05,3.0,7.0,2
+P002,Greek Yogurt 500g,Yogurt,1.8,3.8,0.08,4.0,10.0,2
+P003,Cheddar Cheese 200g,Cheese,2.5,5.0,0.1,5.0,30.0,3
+P004,Fresh Strawberries 250g,Berries,1.5,3.5,0.15,4.5,4.0,1
+P005,Organic Bananas 1kg,Fruit,0.8,1.9,0.05,2.0,5.0,1
+P006,Sunscreen SPF50,SummerCare,6.0,14.0,0.2,10.0,,4
+P007,Beach Towel Premium,BeachGear,8.0,22.0,0.25,12.0,,5
+P008,Basmati Rice 5kg,Grains,7.0,15.0,0.1,10.0,,3
+P009,Olive Oil 1L,Pantry,5.5,12.0,0.12,8.0,,4
+P010,Dark Chocolate 100g,Snacks,1.0,2.8,0.04,2.5,,2

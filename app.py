@@ -84,27 +84,31 @@ with tab3:
         col_a, col_b = st.columns(2)
 
         with col_a:
-            st.markdown("#### Demand Posterior Distribution")
-            post_data = res["posterior"]
-            if post_data:
+            st.markdown("#### Posterior Daily Demand Rate by Day Type")
+            rates = res["group_rates"]
+            if rates:
+                groups = list(rates.keys())
+                means = [rates[g]["posterior_mean"] for g in groups]
                 fig_post = px.bar(
-                    x=list(post_data.keys()),
-                    y=list(post_data.values()),
-                    labels={'x': 'Demand Level', 'y': 'Posterior Probability'},
-                    title=f"Posterior Probability (Stockout Risk: {res['stockout_risk']*100:.1f}%)"
+                    x=groups,
+                    y=means,
+                    error_y=[rates[g]["ci_high"] - rates[g]["posterior_mean"] for g in groups],
+                    error_y_minus=[rates[g]["posterior_mean"] - rates[g]["ci_low"] for g in groups],
+                    labels={'x': 'Day Type', 'y': 'Units per Day (90% interval)'},
+                    title=f"Demand Rates (Stockout Risk: {res['stockout_risk']*100:.1f}%)"
                 )
                 st.plotly_chart(fig_post, use_container_width=True)
 
         with col_b:
-            st.markdown("#### Expected Utility by Reorder Quantity")
-            util_data = res["utility_candidates"]
+            st.markdown("#### Expected Profit by Order Quantity")
+            util_data = res["profit_by_qty"]
             if util_data:
                 fig_util = px.line(
                     x=list(util_data.keys()),
                     y=list(util_data.values()),
                     markers=True,
-                    labels={'x': 'Order Quantity', 'y': 'Expected Utility ($)'},
-                    title=f"Optimal Quantity: {res['recommended_qty']} units (Max Utility)"
+                    labels={'x': 'Order Quantity', 'y': 'Expected Profit'},
+                    title=f"Best Quantity: {res['optimal_qty']} units; order today: {res['recommended_qty']}"
                 )
                 st.plotly_chart(fig_util, use_container_width=True)
     else:

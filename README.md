@@ -55,6 +55,7 @@ Click **Run Agent Decision Cycle** in the sidebar.
 - **Stock on order.** The app has no purchase-order table. "On order" is the sum of recommended
   quantities logged in `ReorderLogs` within each product's lead time, and the agent decides using
   on hand + on order. **This assumes every logged recommendation was actually placed as an order.**
+- **Currency scales.** The app's catalog (`data/inventory.db`) uses a dollar-like price scale, with an assumed order cost of 2.0 (`APP_ORDER_COST` in `src/engine_adapter.py`). The evaluation catalog (`data/sample_products.csv`) is in rupees, with an order cost of ₹30. Numbers from the two aren't comparable.
 - **"Is Weekend?"** makes the agent decide as of the next Saturday.
 - **"Active Promotion?"** means a promotion on every product for the next 7 days.
 - **Evaluation Results tab.** It shows the simulation results from `results/`; nothing is run live.

@@ -27,7 +27,10 @@ from decision_engine import generate_sales_history, recommend_order
 from decision_engine.data_generator import BASE_DEMAND
 from src.db import get_logs, get_sales_history, insert_sales_rows
 
-ORDER_COST = 30.0          # fixed cost per order, passed to recommend_order
+# Fixed cost per order passed to recommend_order, in the APP catalog's currency units. The app's
+# Products table uses a dollar-like scale (e.g. milk unit_cost 1.20), unlike the rupee-scale sample
+# catalog the evaluation uses (order cost Rs 30). 2.0 is an assumption, not a measured cost.
+APP_ORDER_COST = 2.0
 HISTORY_DAYS = 180         # days of synthetic history to seed an empty SalesHistory table
 HISTORY_SEED = 42
 PROMO_DAYS = 7             # "Active Promotion?" = promotion on the next 7 days
@@ -150,5 +153,5 @@ def recommend(
     engine_product["product_id"] = ids[product["product_id"]]
     return recommend_order(
         engine_product, int(current_stock), current_date, history,
-        promo_dates=promo_dates, order_cost=ORDER_COST, spoilage_cost=float(spoilage_cost),
+        promo_dates=promo_dates, order_cost=APP_ORDER_COST, spoilage_cost=float(spoilage_cost),
     )

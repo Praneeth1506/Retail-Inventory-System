@@ -33,6 +33,7 @@ class InventoryAgent:
         ids = engine_adapter.engine_id_map(df_products["product_id"])
         history = engine_adapter.to_engine_history(get_sales_history(), ids)
         promo_dates = engine_adapter.promo_window(current_date, has_promo)
+        on_order = engine_adapter.on_order_quantities(df_products, current_date)
 
         for _, product in df_products.iterrows():
             p_id = product["product_id"]
@@ -46,10 +47,11 @@ class InventoryAgent:
             policy = get_category_policy(p_id)
 
             # Steps 3-4: Calculating Risk and Optimizing Order (Person 2 engine, one call).
-            # current_stock = on hand + on order; the app has no open-orders table, so on order = 0.
+            # current_stock = on hand + on order. On order comes from ReorderLogs and assumes every
+            # logged recommendation was actually placed (see src/engine_adapter.py).
             self.transition("Calculating Risk")
             rec = engine_adapter.recommend(
-                product, ids, current_stock, current_date, history, promo_dates,
+                product, ids, current_stock + on_order[p_id], current_date, history, promo_dates,
                 spoilage_cost=policy.get("spoilage_cost", 0.0),
             )
             self.transition("Optimizing Order")
@@ -78,6 +80,7 @@ class InventoryAgent:
                 "product_id": p_id,
                 "name": policy["name"],
                 "stock": current_stock,
+                "on_order": on_order[p_id],
                 "stockout_risk": stockout_risk,
                 "recommended_qty": opt_result["recommended_qty"],
                 "expected_utility": opt_result["expected_utility"],

@@ -89,6 +89,12 @@ scripts/
   preview_order.py   # order quantities, linear vs. risk-averse
   evaluation_report.py  # baseline vs. DSS vs. ablation over test seeds 0-19
   robustness_report.py  # tuned baseline, cost sensitivity, misspecified demand (parallel)
+  reporting.py       # shared analyses used by the report scripts and export_results.py
+  export_results.py  # writes all evaluation CSVs to results/
+  smoke_integration.py  # runs Person 1's agent on the real engine for 3 days (DB copy)
+results/             # exported CSVs + README (read by the dashboard and the root README)
+app.py               # Person 1: Streamlit dashboard
+src/                 # Person 1: db.py, rules.py, agent.py; engine_adapter.py connects them to decision_engine
 requirements.txt
 ```
 

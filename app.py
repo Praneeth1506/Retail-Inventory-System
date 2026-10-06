@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from pathlib import Path
 from src.agent import InventoryAgent
 from src.db import get_products, get_logs, get_isa_relations
 from src.rules import isa_closure, get_category_policy
@@ -24,7 +25,7 @@ if st.sidebar.button("🚀 Run Agent Decision Cycle", type="primary"):
     st.session_state["latest_results"] = results
 
 # Main Layout Tabs
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Inventory Dashboard", "🔍 Rules & ISA Reasoning", "📈 AI Risk & Utility", "📜 Decision Logs"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Inventory Dashboard", "🔍 Rules & ISA Reasoning", "📈 AI Risk & Utility", "📜 Decision Logs", "🧪 Evaluation Results"])
 
 # TAB 1: Dashboard Overview
 with tab1:
@@ -122,3 +123,47 @@ with tab4:
         st.dataframe(df_logs, use_container_width=True)
     else:
         st.info("No decision logs found. Run an agent cycle to log data.")
+
+# TAB 5: Offline evaluation results (precomputed CSVs from scripts/export_results.py)
+RESULTS_DIR = Path(__file__).parent / "results"
+SCENARIOS = {
+    "Tuned static baseline (main result)": "tuned",
+    "Tuned weekend-aware baseline": "weekend",
+    "Default static baseline": "default",
+    "Misspecified demand (default baseline)": "misspec",
+}
+
+with tab5:
+    st.subheader("Simulation results on the 10-product sample catalog (data/sample_products.csv)")
+    st.caption("Precomputed 90-day simulations over 20 test seeds with synthetic demand; not the live "
+               "app's catalog. Profit in Rs. Paired differences use a 95% t confidence interval across seeds.")
+    if not (RESULTS_DIR / "tuned_policy_totals.csv").exists():
+        st.warning("No results found. Run `python scripts/export_results.py` to create the results/ CSVs.")
+    else:
+        label = st.selectbox("Comparison:", list(SCENARIOS))
+        prefix = SCENARIOS[label]
+
+        st.markdown("#### Per-policy totals (all 10 products, mean over seeds)")
+        totals = pd.read_csv(RESULTS_DIR / f"{prefix}_policy_totals.csv")
+        st.dataframe(totals.round({"profit": 0, "fill_rate": 3, "stockout_days": 1, "units_spoiled": 1,
+                                   "orders_placed": 1, "orders_per_month": 1}), use_container_width=True)
+
+        st.markdown("#### Paired profit differences (95% CI)")
+        paired = pd.read_csv(RESULTS_DIR / f"{prefix}_paired.csv")
+        fig = px.scatter(paired, x="mean", y="comparison",
+                         error_x=paired["ci_high"] - paired["mean"], error_x_minus=paired["mean"] - paired["ci_low"],
+                         labels={"mean": "Profit difference (Rs, 90 days)", "comparison": ""})
+        fig.add_vline(x=0, line_dash="dash")
+        st.plotly_chart(fig, use_container_width=True)
+        st.dataframe(paired.round({"mean": 0, "ci_low": 0, "ci_high": 0, "relative_to_b": 3}), use_container_width=True)
+
+        product_file = RESULTS_DIR / f"{prefix}_per_product.csv"
+        if product_file.exists():
+            st.markdown("#### Per product: DSS minus baseline")
+            st.dataframe(pd.read_csv(product_file).round(3), use_container_width=True)
+
+        cost_file = RESULTS_DIR / "cost_sensitivity.csv"
+        if cost_file.exists():
+            st.markdown("#### Cost sensitivity: DSS minus default baseline (Rs)")
+            st.dataframe(pd.read_csv(cost_file).round({"dss_minus_baseline": 0, "ci_low": 0, "ci_high": 0}),
+                         use_container_width=True)

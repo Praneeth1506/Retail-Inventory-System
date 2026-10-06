@@ -1,0 +1,11 @@
+product_id,name,safety_factor,cover_days,effective_cover_days,tuning_mean_profit,default_mean_profit
+1,Toned Milk 500ml,1.2,3,1,-888.25,-888.25
+2,Curd 400g,1.5,3,3,5108.7675,3509.1675000000005
+3,White Bread 400g,1.2,3,3,8774.7825,8774.7825
+4,Eggs (pack of 6),2.0,7,7,5669.995,5070.83
+5,Sona Masoori Rice 5kg,2.0,7,7,21390.359999999997,19143.489999999998
+6,Whole Wheat Atta 5kg,2.0,7,7,21234.715,18449.1225
+7,Sugar 1kg,2.0,14,14,5476.146,4917.285
+8,Bath Soap 100g,1.5,21,21,6879.621000000001,6100.989
+9,Glucose Biscuits 250g,2.0,14,14,10924.4845,9611.418
+10,Sunflower Oil 1L,2.0,7,7,15803.39,14013.304999999998

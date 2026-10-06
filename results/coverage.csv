@@ -1,0 +1,6 @@
+group,coverage,intervals
+weekday,0.88,500
+weekend,0.882,500
+weekday_promo,0.894,500
+weekend_promo,0.898,500
+overall,0.8885,2000
